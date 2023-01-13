@@ -27,8 +27,8 @@ Although janky, we accept it as beautiful, brave, and stunning. If you don't acc
 literally codiphobic and want all the poor starving children in Africa to die.
 */
 
-@Autonomous(name = "A3_CD_ParkRad")
-public class A3_CD_NewBotAuto extends LinearOpMode {
+@Autonomous(name = "A3_CD_ParkRad_Right")
+public class A3_CD_ParkRad_Right extends LinearOpMode {
 
     // create motor and servo objects
     private Servo clampyBoi = null;
@@ -93,58 +93,60 @@ public class A3_CD_NewBotAuto extends LinearOpMode {
         //----------------------------------
 
         TrajectorySequence initialDriveForScan = drive.trajectorySequenceBuilder(new Pose2d())
-                .forward(26,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(27,
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
 
 
         TrajectorySequence driveToJunction = drive.trajectorySequenceBuilder(initialDriveForScan.end())
-                .forward(22,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(15,
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .back(13,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(-3.14/2)
-                .forward(26,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .turn(3.14/2)
+                .forward(25,
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(3.14/4)
+                .turn(-3.14/4)
                 .build();
 
         TrajectorySequence lockToJunction = drive.trajectorySequenceBuilder(driveToJunction.end())
-                .forward(8,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(10,
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         TrajectorySequence retreatFromScore = drive.trajectorySequenceBuilder(lockToJunction.end())
-                .back(8,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(17,
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         TrajectorySequence realign = drive.trajectorySequenceBuilder(retreatFromScore.end())
-                .turn(3.14/2 + 3.14/4)
+                .turn(-3.14/2 - 3.14/4)
                 .build();
 
         TrajectorySequence redZone = drive.trajectorySequenceBuilder(realign.end())
-                .forward(24,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(13,
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
-        TrajectorySequence blueZone = drive.trajectorySequenceBuilder(realign.end())
-                .forward(2,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .build();
-        
+
         TrajectorySequence greenZone = drive.trajectorySequenceBuilder(realign.end())
                 .forward(12,
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
+
+        TrajectorySequence blueZone = drive.trajectorySequenceBuilder(realign.end())
+                .forward(41,
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
 
 
         waitForStart();
@@ -153,6 +155,7 @@ public class A3_CD_NewBotAuto extends LinearOpMode {
         if (!isStopRequested()) {
         }
 
+        sleep(1500);
         clawControl("clamp");
         moveLift("up", 6, .7);
         drive.followTrajectorySequence(initialDriveForScan); // forward 38
@@ -180,11 +183,11 @@ public class A3_CD_NewBotAuto extends LinearOpMode {
         // Troy: *Walks away*
 
         drive.followTrajectorySequence(driveToJunction);// back 3, turn right, forward 38, turn left
-        moveLift("up", 29, .7);
+        moveLift("up", 31, .7);
         drive.followTrajectorySequence(lockToJunction); // forward 5, forward 12
         clawControl("release");
         drive.followTrajectorySequence(retreatFromScore);
-        moveLift("down", 29, .7);
+        moveLift("down", 37, .7);
         drive.followTrajectorySequence(realign);
 
         if (coneColor.equals("red")) {
@@ -236,11 +239,6 @@ public class A3_CD_NewBotAuto extends LinearOpMode {
         while (ticksNeeded > ticksMoved) {
             currentPosition = STRAIGHTUPPPP.getCurrentPosition();
             ticksMoved = Math.abs(initialPosition - currentPosition);
-
-            telemetry.addData("ticksNeeded ", ticksNeeded);
-            telemetry.addData("ticksMoved ", ticksMoved);
-            telemetry.addData("ticksNeeded - ticksMoved ", ticksNeeded - ticksMoved);
-            telemetry.update();
 
             STRAIGHTUPPPP.setPower(power * directionSign);
         }
