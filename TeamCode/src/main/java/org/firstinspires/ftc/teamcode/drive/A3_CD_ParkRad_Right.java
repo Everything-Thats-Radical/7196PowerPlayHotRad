@@ -111,32 +111,32 @@ public class A3_CD_ParkRad_Right extends LinearOpMode {
                 .forward(25,
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(-3.14/4)
+                .turn(-3.14/3)
                 .build();
 
         TrajectorySequence lockToJunction = drive.trajectorySequenceBuilder(driveToJunction.end())
-                .forward(10,
+                .forward(7,
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         TrajectorySequence retreatFromScore = drive.trajectorySequenceBuilder(lockToJunction.end())
-                .back(17,
+                .back(15,
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         TrajectorySequence realign = drive.trajectorySequenceBuilder(retreatFromScore.end())
-                .turn(-3.14/2 - 3.14/4)
+                .turn((-3.14/3)*2)
                 .build();
 
         TrajectorySequence redZone = drive.trajectorySequenceBuilder(realign.end())
-                .back(13,
+                .back(10,
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         TrajectorySequence greenZone = drive.trajectorySequenceBuilder(realign.end())
-                .forward(12,
+                .forward(15,
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();

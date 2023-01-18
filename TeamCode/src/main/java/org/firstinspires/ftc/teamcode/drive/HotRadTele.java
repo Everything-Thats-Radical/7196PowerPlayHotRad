@@ -127,11 +127,11 @@ public class HotRadTele extends LinearOpMode {
             }
 // Control servo
             if (autoDropCone) {
-                clampyBoi.setPosition(1);
+                clampyBoi.setPosition(.12);
             } else if (clawOpen) {
-                clampyBoi.setPosition(1);
+                clampyBoi.setPosition(.12);
             } else {
-                clampyBoi.setPosition(0);
+                clampyBoi.setPosition(.02);
             }
 // End of control for servo
             if (slowSlide && (Math.abs(STRAIGHTUPPPPPower) > .1)){

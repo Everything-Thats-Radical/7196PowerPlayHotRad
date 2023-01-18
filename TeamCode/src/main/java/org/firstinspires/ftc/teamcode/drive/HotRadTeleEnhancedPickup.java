@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.drive;
 //import com.google.blocks.ftcrobotcontroller.runtime.BNO055IMUAccess; Had imported, but was giving error
 // kept it in just in case, because I (Isaiah) am not sure it was me who wanted it here
 
+import static java.lang.Math.signum;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -27,10 +29,34 @@ public class HotRadTeleEnhancedPickup extends LinearOpMode {
         Servo clampyBoi = null;
         DcMotor STRAIGHTUPPPP = null;
         DistanceSensor junctionSensor = null;
+        DistanceSensor centerDistanceSensor = hardwareMap.get(DistanceSensor.class, "sensor_color_distance");
         boolean autoDropCone = false;
         double desiredHeading = 0;
+
+        //lift movement variables
         double initialLiftPosition;
         double currentLiftPosition;
+        double desiredLiftPosition = 0;
+        boolean autoPoiseLift = false;
+        boolean autoStrikeLift = false;
+        boolean autoRePoiseLift = false;
+        boolean autoOpenClip = false;
+        ElapsedTime timer = new ElapsedTime();
+/*
+// Declare time keeper at the start of your opmode.
+public ElapsedTime mRuntime = new ElapsedTime();
+
+
+// Reset the game clock to zero in Start()
+mRunTime.reset()
+
+
+// Check for 2.5 seconds elapsed in loop();
+if (mRunTime.time() > 2.5)
+{
+do stuff.
+}
+ */
 
         telemetry.addData("Status", "Initializing");
         telemetry.update();
@@ -121,11 +147,14 @@ public class HotRadTeleEnhancedPickup extends LinearOpMode {
 
 // Control servo
             if (autoDropCone) {
-                clampyBoi.setPosition(1);
-            } else if (clawOpen) {
-                clampyBoi.setPosition(1);
+                clampyBoi.setPosition(.12);
+            } else if (autoOpenClip){ // for autoConePickup
+                clampyBoi.setPosition(.12);
+            }
+            else if (clawOpen) {
+                clampyBoi.setPosition(.12);
             } else {
-                clampyBoi.setPosition(0);
+                clampyBoi.setPosition(.01);
             }
 // End of control for servo
 
@@ -141,7 +170,79 @@ public class HotRadTeleEnhancedPickup extends LinearOpMode {
             if(autoUp){
                 moveLift("up", 30, 1, STRAIGHTUPPPP);
             }
+            telemetry.addData("Lift EncoderPosition: ", STRAIGHTUPPPP.getCurrentPosition());
+            if (gamepad2.b){
+                desiredLiftPosition = liftInchesToTicks(6);
+                autoPoiseLift = false;
+                autoStrikeLift = false;
+                autoRePoiseLift = false;
+                autoOpenClip = false;
+            }
+            if (gamepad2.a){
+                desiredLiftPosition = liftInchesToTicks(6);
+                autoPoiseLift = true;
+            }
+            if (autoPoiseLift){
+                autoOpenClip = true;
+                currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
+                double ticksNeeded = desiredLiftPosition - currentLiftPosition;
+                if (Math.abs(ticksNeeded) > 100) {
+                    if(Math.abs(ticksNeeded) < 100) {
+                        STRAIGHTUPPPP.setPower(.5 * signum(ticksNeeded));
+                    }else{
+                        STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
+                    }
+                } else if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4) {
+                    autoPoiseLift = false;
+                    desiredLiftPosition = liftInchesToTicks(0);
+                    autoStrikeLift = true;
+                    timer.reset();
+                }
+            }
+            if (autoStrikeLift){
+                currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
+                double ticksNeeded = desiredLiftPosition - currentLiftPosition;
+                if (Math.abs(ticksNeeded) > 100) {
+                    if(Math.abs(ticksNeeded) < 100) {
+                        STRAIGHTUPPPP.setPower(.5 * signum(ticksNeeded));
+                    }else{
+                        STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
+                    }
+                } else{
+                    autoOpenClip = false;
+                    if((clampyBoi.getPosition() < .0109) && (timer.time() > .5)){
+                        autoStrikeLift = false;
+                        desiredLiftPosition = liftInchesToTicks(6);
+                        autoRePoiseLift = true;
+                    }
+                }
+            }
+            if (autoRePoiseLift){
+                currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
+                double ticksNeeded = desiredLiftPosition - currentLiftPosition;
+                if (Math.abs(ticksNeeded) > 100) {
+                    if(Math.abs(ticksNeeded) < 100) {
+                        STRAIGHTUPPPP.setPower(.5 * signum(ticksNeeded));
+                    }else{
+                        STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
+                    }
+                }else{
+                    autoRePoiseLift = false;
+                }
+            }
 
+            /*
+                                if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4){
+                        desiredLiftPosition = liftInchesToTicks(0);
+                    }
+             */
+            /*
+
+                    autoOpenClip = false;
+                    if (clampyBoi.getPosition() == .01){
+                        desiredLiftPosition = liftInchesToTicks(6);
+                    }
+             */
 // END OF MAIN SCORING CODE -----------------------------
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -188,13 +289,19 @@ public class HotRadTeleEnhancedPickup extends LinearOpMode {
         }
         up.setPower(0);
     }
+    public static double liftInchesToTicks(double inches){
+        double inchesPerRev = (2 * Math.PI);
+        double ticks_per_inch = (1120 / inchesPerRev);
+        double ticks = inches * ticks_per_inch;
+        return ticks;
+    }
 
 
 }
 /*
 *at beginning of match, set lift to down*
 initialization{
-	lift encoderposition = 0;
+	liftEncoderposition = 0;
 
 	double desiredPosition;
 	double currentPosition;
@@ -206,19 +313,13 @@ gameLoop{
 		moveToDesired = true;
 	}
 	if (moveToDesired){
+	    currentPosition = up.getCurrentPosition();
 	    ticksNeeded = desiredPosition - currentPosition;
-		if (ticksNeeded < (Math.abs())) {
-            currentPosition = up.getCurrentPosition();
-            ticksMoved = Math.abs(initialPosition - currentPosition);
-
-            STRAIGHTUUUUUP.setPower(power * directionSign);
+		if (ticksNeeded < 0) {
+            STRAIGHTUUUUUP.setPower(power * signum(ticksNeeded));
+        } else{
+            moveToDesired = false;
         }
 	}
-}
-public static double liftInchesToTicks(double inches){
-        double revsToInch = (2 * Math.PI);
-        double ticks_per_inch = (1120 / revsToInch);
-        double ticks = height * ticks_per_inch;
-        return ticks;
 }
  */

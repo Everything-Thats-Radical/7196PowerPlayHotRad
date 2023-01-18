@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -23,7 +24,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 /* Our 3rd in command, Troy Tomson, has made an amazing piece of art that is this code.
 Although janky, we accept it as beautiful, brave, and stunning.
  */
-
+@Disabled
 @Autonomous(name = "A2_CD_Score_Park")
 public class A2_CD_Score_Park extends LinearOpMode {
 

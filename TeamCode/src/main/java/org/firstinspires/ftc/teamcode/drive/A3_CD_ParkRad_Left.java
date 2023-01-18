@@ -113,7 +113,7 @@ public class A3_CD_ParkRad_Left extends LinearOpMode {
                 .build();
 
         TrajectorySequence lockToJunction = drive.trajectorySequenceBuilder(driveToJunction.end())
-                .forward(10,
+                .forward(8,
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
