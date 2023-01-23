@@ -278,13 +278,16 @@ do stuff.
             }else{
                 seeingBlue = false;
             }
-/*
-            if ((junctionSensor.getDistance(DistanceUnit.INCH) < .5) && (seeingRed || seeingBlue) && ())
-                autoOpenClip = true;
-            if ( &&){
 
+            if ((junctionSensor.getDistance(DistanceUnit.INCH) < .5) && (seeingRed || seeingBlue) && (autoDropRequest)){
+                autoOpenClip = true;
             }
-*/
+            if((junctionSensor.getDistance(DistanceUnit.INCH) < 1.8) && (junctionSensor.getDistance(DistanceUnit.INCH) > 1.4) && (seeingSilver) && (autoDropRequest)){
+                autoOpenClip = true;
+            }
+
+
+
 
 
 
