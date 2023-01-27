@@ -282,7 +282,7 @@ do stuff.
             if ((junctionSensor.getDistance(DistanceUnit.INCH) < .5) && (seeingRed || seeingBlue) && (autoDropRequest)){
                 autoOpenClip = true;
             }
-            if((junctionSensor.getDistance(DistanceUnit.INCH) < 1.8) && (junctionSensor.getDistance(DistanceUnit.INCH) > 1.4) && (seeingSilver) && (autoDropRequest)){
+            if((junctionSensor.getDistance(DistanceUnit.INCH) < 6.5) && (junctionSensor.getDistance(DistanceUnit.INCH) > 4.5) && (seeingSilver) && (autoDropRequest)){
                 autoOpenClip = true;
             }
 
