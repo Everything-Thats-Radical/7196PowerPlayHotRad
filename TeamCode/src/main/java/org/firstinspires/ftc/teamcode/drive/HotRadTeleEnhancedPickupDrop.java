@@ -24,6 +24,7 @@ public class HotRadTeleEnhancedPickupDrop extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         //Declare OpMode members
         ElapsedTime runtime = new ElapsedTime();
+        ElapsedTime autoDropRequestTimer = new ElapsedTime();
         DcMotor FLDrive = null;
         DcMotor FRDrive = null;
         DcMotor BLDrive = null;
@@ -117,12 +118,16 @@ do stuff.
             currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
 
             //Retrieve driving values from controller
+            int word = 6;
             double y = gamepad1.left_stick_y * .8; // Remember, this is reversed!
             double x = gamepad1.left_stick_x * .8; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x * .8;
             double STRAIGHTUPPPPPower = gamepad2.left_stick_y;
 
-            autoDropRequest = gamepad2.x;
+            if (gamepad2.x){
+                autoDropRequest = true;
+            }
+
 
 
 
@@ -279,11 +284,18 @@ do stuff.
                 seeingBlue = false;
             }
 
-            if ((junctionSensor.getDistance(DistanceUnit.INCH) < .5) && (seeingRed || seeingBlue) && (autoDropRequest)){
+            if ((junctionSensor.getDistance(DistanceUnit.INCH) > 2.6) && (junctionSensor.getDistance(DistanceUnit.INCH) < 2.4) && (seeingRed || seeingBlue) && (autoDropRequest)){
                 autoOpenClip = true;
+                autoDropRequestTimer.reset();
+                autoDropRequest = false;
             }
             if((junctionSensor.getDistance(DistanceUnit.INCH) < 6.5) && (junctionSensor.getDistance(DistanceUnit.INCH) > 4.5) && (seeingSilver) && (autoDropRequest)){
                 autoOpenClip = true;
+                autoDropRequestTimer.reset();
+                autoDropRequest = false;
+            }
+            if(autoOpenClip && autoDropRequestTimer.time() > .5){
+                autoOpenClip = false;
             }
 
 
