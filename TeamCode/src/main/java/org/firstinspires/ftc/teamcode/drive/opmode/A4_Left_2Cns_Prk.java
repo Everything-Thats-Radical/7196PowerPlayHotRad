@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 @Autonomous(name = "A4_Left_2Cns_Prk")
 public class A4_Left_2Cns_Prk extends LinearOpMode {
 
-
     private Servo clampyBoi = null;
     private DcMotor STRAIGHTUPPPP = null;
 
@@ -58,13 +57,14 @@ public class A4_Left_2Cns_Prk extends LinearOpMode {
 
         1) drive to scan the beacon
         2) scan the beacon and obtain its color (implying location)
-        3) spline to look at the near high junction
-        4) raise the lift
-        5) position cone over junction
-        6) Drop cone
-        7) back up
-        8) Lower lift
-        9) spline to correct parking location based on beacon reading
+        3) push cone out of way
+        4) spline to look at the near high junction
+        5) raise the lift
+        6) position cone over junction
+        7) Drop cone
+        8) back up
+        9) Lower lift
+        10) spline to correct parking location based on beacon reading
          */
 
         Pose2d startPose = new Pose2d(64.5, -36, 180); // beginning pose of this auto
@@ -74,6 +74,9 @@ public class A4_Left_2Cns_Prk extends LinearOpMode {
         Vector2d conePushPos = new Vector2d(24, -36);
         Vector2d liftToScorePos = new Vector2d(29.3, 29.3); // 135 degrees
         Vector2d scorePos = new Vector2d(28.24, -28.24); // 135 degrees
+        Vector2d nearStack = new Vector2d(36, -60); // 135 degrees
+        Vector2d lookAtStack = new Vector2d(12, -60); // 135 degrees
+        Vector2d overStack = new Vector2d(12, 66); // 135 degrees
         Vector2d blueParkPos = new Vector2d(36, -12); // 135 degrees
         Vector2d greenParkPos = new Vector2d(36, -36); // 135 degrees
         Vector2d redParkPos = new Vector2d(36, -60); // 135 degrees
@@ -102,6 +105,26 @@ public class A4_Left_2Cns_Prk extends LinearOpMode {
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
+
+        TrajectorySequence positionToCone = drive.trajectorySequenceBuilder(backUpFromScore.end())
+                .splineTo(nearStack, Math.toRadians(180))
+                .splineTo(lookAtStack, Math.toRadians(270))
+                .build();
+
+        Trajectory positionOverCone = drive.trajectoryBuilder(positionToCone.end())
+                .splineTo(overStack, Math.toRadians(180))
+                .build();
+
+        Trajectory backUpFromStack = drive.trajectoryBuilder(positionOverCone.end())
+                .splineTo(lookAtStack, Math.toRadians(180))
+                .build();
+
+        TrajectorySequence positionToScoreSecond = drive.trajectorySequenceBuilder(backUpFromStack.end())
+                .splineTo(nearStack, Math.toRadians(90))
+                .splineTo(liftToScorePos, Math.toRadians(135))
+                .build();
+
+
 
         Trajectory parkBlue = drive.trajectoryBuilder(backUpFromScore.end())
                 .splineTo(blueParkPos, Math.toRadians(180))

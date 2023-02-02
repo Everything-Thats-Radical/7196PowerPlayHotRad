@@ -58,13 +58,14 @@ public class A4_Left_1Cn_Prk extends LinearOpMode {
 
         1) drive to scan the beacon
         2) scan the beacon and obtain its color (implying location)
-        3) spline to look at the near high junction
-        4) raise the lift
-        5) position cone over junction
-        6) Drop cone
-        7) back up
-        8) Lower lift
-        9) spline to correct parking location based on beacon reading
+        3) push cone out of way
+        4) spline to look at the near high junction
+        5) raise the lift
+        6) position cone over junction
+        7) Drop cone
+        8) back up
+        9) Lower lift
+        10) spline to correct parking location based on beacon reading
          */
 
         Pose2d startPose = new Pose2d(64.5, -36, 180); // beginning pose of this auto
