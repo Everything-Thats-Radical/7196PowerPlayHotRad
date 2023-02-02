@@ -36,6 +36,7 @@ public class HotRadTeleEnhancedPickupDrop extends LinearOpMode {
         ColorSensor colorSensor;
         boolean autoDropCone = false;
         double desiredHeading = 0;
+        boolean liftAtDesiredPosition = false;
 
         //lift movement variables
         double initialLiftPosition;
@@ -44,9 +45,13 @@ public class HotRadTeleEnhancedPickupDrop extends LinearOpMode {
         boolean autoPoiseLift = false;
         boolean autoStrikeLift = false;
         boolean autoRePoiseLift = false;
-        boolean autoOpenClip = false;
+        boolean autoPickupOpenClip = false;
+        boolean autoScoreOpenClip = false;
         boolean autoDropRequest = false;
+        double ticksNeeded;
+        boolean robotControlLift = false;
         ElapsedTime timer = new ElapsedTime();
+
 /*
 // Declare time keeper at the start of your opmode.
 public ElapsedTime mRuntime = new ElapsedTime();
@@ -83,6 +88,10 @@ do stuff.
         STRAIGHTUPPPP.setDirection(DcMotor.Direction.REVERSE);
 
         STRAIGHTUPPPP.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        STRAIGHTUPPPP.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        STRAIGHTUPPPP.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
 
 
         // Retrieve the IMU from the hardware map
@@ -102,7 +111,16 @@ do stuff.
 
         if (isStopRequested()) return;
 
+
+        double frontLeftPower = 0;
+        double backLeftPower = 0;
+        double frontRightPower = 0;
+        double backRightPower = 0;
+
         while (opModeIsActive()) { //Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+
+            telemetry.addData("thingy ", "thing");
+            telemetry.update();
 
             if (colorSensor instanceof SwitchableLight) {
                 ((SwitchableLight) colorSensor).enableLight(true);
@@ -124,19 +142,17 @@ do stuff.
             double rx = gamepad1.right_stick_x * .8;
             double STRAIGHTUPPPPPower = gamepad2.left_stick_y;
 
-            if (gamepad2.x){
+            if (gamepad2.x) {
                 autoDropRequest = true;
             }
 
 
-
-
 // START OF MAIN DRIVING CODE ---------------------------------------------------------------------------------------------------
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x - rx) / denominator;
-            double backLeftPower = (y - x - rx) / denominator;
-            double frontRightPower = (y - x + rx) / denominator;
-            double backRightPower = (y + x + rx) / denominator;
+            frontLeftPower = (y + x - rx) / denominator;
+            backLeftPower = (y - x - rx) / denominator;
+            frontRightPower = (y - x + rx) / denominator;
+            backRightPower = (y + x + rx) / denominator;
 
             // set power to motors
             if (slowMode) {
@@ -164,53 +180,47 @@ do stuff.
 // Control servo
             if (autoDropCone) {
                 clampyBoi.setPosition(.12);
-            } else if (autoOpenClip){ // for autoConePickup
+            } else if (autoPickupOpenClip) { // for autoConePickup
                 clampyBoi.setPosition(.12);
-            }
-            else if (clawOpen) {
+            } else if (autoScoreOpenClip) {
+                clampyBoi.setPosition(.12);
+            } else if (clawOpen) {
                 clampyBoi.setPosition(.12);
             } else {
                 clampyBoi.setPosition(.01);
             }
 // End of control for servo
 
-            if (slowSlide && (Math.abs(STRAIGHTUPPPPPower) > .1)){
+            if (slowSlide && (Math.abs(STRAIGHTUPPPPPower) > .1)) {
                 STRAIGHTUPPPP.setPower(-STRAIGHTUPPPPPower * .5);
-            }
-            else if(Math.abs(STRAIGHTUPPPPPower) > .1){ // Small deadzone to counteract stick drift
+            } else if (Math.abs(STRAIGHTUPPPPPower) > .1) { // Small deadzone to counteract stick drift
                 STRAIGHTUPPPP.setPower(-STRAIGHTUPPPPPower);
             } else {
                 STRAIGHTUPPPP.setPower(0);
             }
 
-            if(autoUp){
+            if (autoUp) {
                 moveLift("up", 30, 1, STRAIGHTUPPPP);
             }
             telemetry.addData("Lift EncoderPosition: ", STRAIGHTUPPPP.getCurrentPosition());
-            if (gamepad2.b){
+            if (gamepad2.b) {
                 desiredLiftPosition = liftInchesToTicks(6);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
-                autoOpenClip = false;
+                autoPickupOpenClip = false;
+                autoScoreOpenClip = false;
             }
-            if (gamepad2.a){
+            if (gamepad2.a) {
                 desiredLiftPosition = liftInchesToTicks(6);
                 autoPoiseLift = true;
             }
 
             //Automatic pickup code:
-            if (autoPoiseLift){
-                autoOpenClip = true;
-                currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
-                double ticksNeeded = desiredLiftPosition - currentLiftPosition;
-                if (Math.abs(ticksNeeded) > 100) {
-                    if(Math.abs(ticksNeeded) < 100) {
-                        STRAIGHTUPPPP.setPower(.5 * signum(ticksNeeded));
-                    }else{
-                        STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
-                    }
-                } else if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4) {
+            if (autoPoiseLift) {
+                autoPickupOpenClip = true;
+                robotControlLift = true;
+                if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition) {
                     autoPoiseLift = false;
                     desiredLiftPosition = liftInchesToTicks(0);
                     autoStrikeLift = true;
@@ -218,39 +228,39 @@ do stuff.
                 }
             }
 
-            if (autoStrikeLift){
-                currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
-                double ticksNeeded = desiredLiftPosition - currentLiftPosition;
-                if (Math.abs(ticksNeeded) > 100) {
-                    if(Math.abs(ticksNeeded) < 100) {
-                        STRAIGHTUPPPP.setPower(.5 * signum(ticksNeeded));
-                    }else{
-                        STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
-                    }
-                } else{
-                    autoOpenClip = false;
-                    if((clampyBoi.getPosition() < .0109) && (timer.time() > .5)){
-                        autoStrikeLift = false;
-                        desiredLiftPosition = liftInchesToTicks(6);
-                        autoRePoiseLift = true;
-                    }
+            if (autoStrikeLift) {
+                autoPickupOpenClip = false;
+                if ((clampyBoi.getPosition() < .0109) && (timer.time() > .5) && liftAtDesiredPosition) {
+                    autoStrikeLift = false;
+                    robotControlLift = true;
+                    desiredLiftPosition = liftInchesToTicks(6);
+                    autoRePoiseLift = true;
+
                 }
             }
 
-            if (autoRePoiseLift){
-                currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
-                double ticksNeeded = desiredLiftPosition - currentLiftPosition;
-                if (Math.abs(ticksNeeded) > 100) {
-                    if(Math.abs(ticksNeeded) < 100) {
-                        STRAIGHTUPPPP.setPower(.5 * signum(ticksNeeded));
-                    }else{
-                        STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
-                    }
-                }else{
+            if (autoRePoiseLift) {
+                robotControlLift = true;
+                if(liftAtDesiredPosition){
                     autoRePoiseLift = false;
                 }
             }
             // end of auto pickup code
+
+            if (gamepad2.dpad_up){
+                desiredLiftPosition = 6000;
+                robotControlLift = true;
+            }
+            currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
+            ticksNeeded = desiredLiftPosition - currentLiftPosition;
+
+            if (Math.abs(ticksNeeded) > 20 && robotControlLift){
+                STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
+                liftAtDesiredPosition = false;
+            }else{
+                liftAtDesiredPosition = true;
+                robotControlLift = false;
+            }
 
             double redVal = colorSensor.red();
             double greenVal = colorSensor.green();
@@ -266,42 +276,37 @@ do stuff.
             boolean seeingRed = false;
             boolean seeingBlue = false;
 
-            if ((redPercent > .15) && (redPercent < .27) && (greenPercent > .35) && (greenPercent < .45) && (bluePercent > .32) && (bluePercent < .46)){
+            if ((redPercent > .15) && (redPercent < .27) && (greenPercent > .35) && (greenPercent < .45) && (bluePercent > .32) && (bluePercent < .46)) {
                 seeingSilver = true;
-            }else{
+            } else {
                 seeingSilver = false;
             }
 
-            if (redPercent > greenPercent && redPercent > bluePercent){
+            if (redPercent > greenPercent && redPercent > bluePercent) {
                 seeingRed = true;
-            }else{
+            } else {
                 seeingRed = false;
             }
 
-            if (bluePercent > redPercent && bluePercent > greenPercent){
+            if (bluePercent > redPercent && bluePercent > greenPercent) {
                 seeingBlue = true;
-            }else{
+            } else {
                 seeingBlue = false;
             }
 
-            if ((junctionSensor.getDistance(DistanceUnit.INCH) > 2.6) && (junctionSensor.getDistance(DistanceUnit.INCH) < 2.4) && (seeingRed || seeingBlue) && (autoDropRequest)){
-                autoOpenClip = true;
+            if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) > 0.35) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4) && (seeingRed || seeingBlue) && (autoDropRequest)) {//1.3
+                autoScoreOpenClip = true;
                 autoDropRequestTimer.reset();
                 autoDropRequest = false;
             }
-            if((junctionSensor.getDistance(DistanceUnit.INCH) < 6.5) && (junctionSensor.getDistance(DistanceUnit.INCH) > 4.5) && (seeingSilver) && (autoDropRequest)){
-                autoOpenClip = true;
+            if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.5) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) > 1) && (seeingSilver) && (autoDropRequest)) {
+                autoScoreOpenClip = true;
                 autoDropRequestTimer.reset();
                 autoDropRequest = false;
             }
-            if(autoOpenClip && autoDropRequestTimer.time() > .5){
-                autoOpenClip = false;
+            if (autoScoreOpenClip && autoDropRequestTimer.time() > .5) {
+                autoScoreOpenClip = false;
             }
-
-
-
-
-
 
 
 // END OF MAIN SCORING CODE -----------------------------
@@ -316,15 +321,13 @@ do stuff.
             telemetry.addData("seeing silver? ", seeingSilver);
             telemetry.addData("seeingRed?", seeingRed);
             telemetry.addData("seeingBlue?", seeingBlue);
-            telemetry.addData("Motors", "Front Left (%.2f), Front Right (%.2f), Back Left (%.2f), " +
-                            "Back Right (%.2f)", frontLeftPower, frontRightPower, backLeftPower,
-                    backRightPower);
-            telemetry.addData("Distance (in inches)", junctionSensor.getDistance(DistanceUnit.INCH));
+            telemetry.addData("Motors", "Front Left (%.2f), Front Right (%.2f), Back Left (%.2f), " + "Back Right (%.2f)", frontLeftPower, frontRightPower, backLeftPower, backRightPower);
+            telemetry.addData("Distance (in inches)", centerDistanceSensor.getDistance(DistanceUnit.INCH));
             //telemetry.addData("Slides", "left (%.2f), right (%.2f)", x, y);
-
             telemetry.update();
         }
     }
+
 
     public void moveLift(String direction, double height, double power, DcMotor up) {
         double revsToInch = (2 * Math.PI);
@@ -349,12 +352,12 @@ do stuff.
         while (ticksNeeded > ticksMoved) {
             currentPosition = up.getCurrentPosition();
             ticksMoved = Math.abs(initialPosition - currentPosition);
-
+/*
             telemetry.addData("ticksNeeded ", ticksNeeded);
             telemetry.addData("ticksMoved ", ticksMoved);
             telemetry.addData("ticksNeeded - ticksMoved ", ticksNeeded - ticksMoved);
             telemetry.update();
-
+*/
             up.setPower(power * directionSign);
         }
         up.setPower(0);
@@ -365,6 +368,4 @@ do stuff.
         double ticks = inches * ticks_per_inch;
         return ticks;
     }
-
-
 }
