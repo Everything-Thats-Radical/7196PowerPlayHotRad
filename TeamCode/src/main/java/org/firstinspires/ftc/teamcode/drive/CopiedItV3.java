@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.drive;
 
+import java.lang.Math.*;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -10,8 +11,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp (name = "CopiedItV2", group = "Iterative Opmode")
-public class CopiedItV2 extends LinearOpMode{
+@TeleOp (name = "CopiedItV3", group = "Iterative Opmode")
+public class CopiedItV3 extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         // Declare our motors
@@ -21,7 +22,6 @@ public class CopiedItV2 extends LinearOpMode{
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("FRDrive");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("BRDrive");
 
-        double desiredHeading = 0;
 
         // Reverse the right side motors
         // Reverse left motors if you are using NeveRests
@@ -41,22 +41,55 @@ public class CopiedItV2 extends LinearOpMode{
         imu.resetYaw();
 
         waitForStart();
-/*
-        desiredHeading = -imu.getAngularOrientation().firstAngle;
-        double yHeading = -imu.getAngularOrientation().firstAngle;
-        double xHeading = -imu.getAngularOrientation().firstAngle + 90;
-        double bHeading = -imu.getAngularOrientation().firstAngle - 90;
-        double aHeading = -imu.getAngularOrientation().firstAngle + 180;
-*/
+
+        //double startHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        double desiredHeading = 0;
+        double yHeading = 0;
+        double xHeading = 90;
+        double bHeading = -90;
+        double aHeading = 180;
+
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            double y = gamepad1.left_stick_y; // Remember, this is reversed!
-            double x = -gamepad1.left_stick_x; // Counteract imperfect strafing
+
+            double botHeadingDeg = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+            double y = gamepad1.left_stick_y;
+            double x = -gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
 
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            if(gamepad1.y){
+                desiredHeading = yHeading;
+            }
+            if(gamepad1.x){
+                desiredHeading = xHeading;
+            }
+            if(gamepad1.b){
+                desiredHeading = bHeading;
+            }
+            if(gamepad1.a){
+                desiredHeading = aHeading;
+            }
 
+            double degreesToTurn = Math.abs(desiredHeading - botHeadingDeg);
+            double turnDirection = 1;
+            if(botHeadingDeg < desiredHeading){
+                turnDirection = 1;
+            } else if (botHeadingDeg > desiredHeading){
+                turnDirection = -1;
+            }
+            if (degreesToTurn > 180){
+                turnDirection = -1;
+                degreesToTurn = 360 - degreesToTurn;
+            }
+
+
+            if (degreesToTurn > 10){
+                rx -= 1 - degreesToTurn/180 * turnDirection;
+            }
+
+            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
@@ -75,9 +108,12 @@ public class CopiedItV2 extends LinearOpMode{
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
-            telemetry.addData("bot yaw: ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-            telemetry.addData("bot pitch: ", imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
-            telemetry.addData("bot roll: ", imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
+            telemetry.addData("Bot Heading: ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("Desired Heading: ", desiredHeading);
+            telemetry.addData("Turn direction: ", turnDirection);
+            telemetry.addData("Degrees to Turn: ", degreesToTurn);
+
+            telemetry.addData("rx: ", rx);
             telemetry.update();
         }
     }
