@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-//import com.google.blocks.ftcrobotcontroller.runtime.BNO055IMUAccess; Had imported, but was giving error
-// kept it in just in case, because I (Isaiah) am not sure it was me who wanted it here
-
 import static java.lang.Math.signum;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -20,28 +17,30 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp (name = "CookingWithGasEnhanced", group = "Iterative Opmode")
-public class CookingWithGasEnhanced extends LinearOpMode {
+@TeleOp (name = "CookingWithGasThreatLevelMidnight", group = "Iterative Opmode")
+public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //Declare OpMode members
-        ElapsedTime runtime = new ElapsedTime();
-        ElapsedTime autoDropRequestTimer = new ElapsedTime();
-        DcMotor FLDrive = null;
+        ElapsedTime runtime = new ElapsedTime(); // keep track of elapsed time. Not used except for telemetry
+        ElapsedTime autoDropRequestTimer = new ElapsedTime();// Timer to keep track of movements with automatic pickup
+        ElapsedTime clampyBoiMovementTimer = new ElapsedTime();
+        // The claw servo is usually slower than we would like, so we add waits before the lift can move.
+        DcMotor FLDrive = null; // standard motor declarations
         DcMotor FRDrive = null;
         DcMotor BLDrive = null;
         DcMotor BRDrive = null;
-        Servo clampyBoi = null;
-        DcMotor STRAIGHTUPPPP = null;
-        DistanceSensor junctionSensor = null;
-        DistanceSensor centerDistanceSensor = hardwareMap.get(DistanceSensor.class, "sensor_color_distance");
+        Servo clampyBoi = null; // claw servo
+        DcMotor STRAIGHTUPPPP = null; // lift motor
+        DistanceSensor junctionSensor = null; // Side sensor in scooper. Not used.
+        //centerDistanceSensor handles all distances and color for automatic pickup and the experimental automatic drop
+        DistanceSensor centerDistanceSensor;
         ColorSensor colorSensor;
         boolean autoDropCone = false;
         double desiredHeading = 0;
         boolean liftAtDesiredPosition = false;
 
         //lift movement variables
-        double initialLiftPosition;
         double currentLiftPosition;
         double desiredLiftPosition = 0;
         boolean autoPoiseLift = false;
@@ -50,9 +49,9 @@ public class CookingWithGasEnhanced extends LinearOpMode {
         boolean autoPickupOpenClip = false;
         boolean autoScoreOpenClip = false;
         boolean autoDropRequest = false;
-        double ticksNeeded;
-        boolean robotControlLift = false;
+        double liftTicksNeeded = 0;
         double STRAIGHTUPPPPPower = 0;
+        double speedMultiplier;
         ElapsedTime timer = new ElapsedTime();
 
         telemetry.addData("Status", "Initializing");
@@ -65,6 +64,7 @@ public class CookingWithGasEnhanced extends LinearOpMode {
         clampyBoi = hardwareMap.get(Servo.class, "clampyBoi");
         STRAIGHTUPPPP = hardwareMap.get(DcMotor.class, "STRAIGHTUPPPP");
         junctionSensor = hardwareMap.get(DistanceSensor.class, "junctionSensor");
+        centerDistanceSensor = hardwareMap.get(DistanceSensor.class, "sensor_color_distance");
         colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color_distance");
 
         FLDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -102,14 +102,12 @@ public class CookingWithGasEnhanced extends LinearOpMode {
                 ((SwitchableLight) colorSensor).enableLight(true);
             }
 
-            double botHeadingDeg = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
             double y = gamepad1.left_stick_y;
             double x = -gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
-            STRAIGHTUPPPPPower = gamepad2.left_stick_y;
 
-            if(gamepad1.y){
+            if(gamepad1.y){ // automatic turning commands
                 desiredHeading = yHeading;
             }
             if(gamepad1.x){
@@ -124,25 +122,21 @@ public class CookingWithGasEnhanced extends LinearOpMode {
 
             boolean clawOpen = gamepad2.y;
             boolean slowMode = gamepad1.right_bumper;
-            boolean dropCheck = (0.2 < (gamepad2.right_trigger));
-            boolean slowSlide = (0.2 < (gamepad2.left_trigger));
-            double speedMultiplier;
-            initialLiftPosition = 0;
-            currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
-
             if (slowMode) {
                 speedMultiplier = .5;
             } else {
                 speedMultiplier = 1.0;
             }
 
-            double rotate = botHeadingDeg - desiredHeading;
+            double botHeadingDeg = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            double rotate = botHeadingDeg - desiredHeading; // algorithm for automatic turning
             rotate += 540;
             rotate = (rotate % 360) - 180;
             rx += rotate/-70;
 
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS); // bot heading for field centric
             // Rotate the movement direction counter to the bot's rotation
+            // Changes x and y from robot centric drive to field-centric
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
 
@@ -150,26 +144,17 @@ public class CookingWithGasEnhanced extends LinearOpMode {
             // This ensures all the powers maintain the same ratio, but only when
             // at least one is out of the range [-1, 1]
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (rotY + rotX - rx) / denominator;
+            double frontLeftPower = (rotY + rotX - rx) / denominator; // standard mecanum wheel formulas
             double backLeftPower = (rotY - rotX - rx) / denominator;
             double frontRightPower = (rotY - rotX + rx) / denominator;
             double backRightPower = (rotY + rotX + rx) / denominator;
 
-            FLDrive.setPower(frontLeftPower * speedMultiplier);
+            FLDrive.setPower(frontLeftPower * speedMultiplier); // set power to wheels
             BLDrive.setPower(backLeftPower * speedMultiplier);
             FRDrive.setPower(frontRightPower * speedMultiplier);
             BRDrive.setPower(backRightPower * speedMultiplier);
 
-            // MAIN SCORING CODE
-            if (dropCheck) {
-                if ((junctionSensor.getDistance(DistanceUnit.INCH) < 5) && (junctionSensor.getDistance(DistanceUnit.INCH)) > 3.5) {
-                    autoDropCone = true;
-                } else {
-                    autoDropCone = false;
-                }
-            }
-
-
+            // claw handling code
             if (autoDropCone) {
                 clampyBoi.setPosition(.12);
             } else if (autoPickupOpenClip) { // for autoConePickup
@@ -182,70 +167,107 @@ public class CookingWithGasEnhanced extends LinearOpMode {
                 clampyBoi.setPosition(.01);
             }
 
-            if (slowSlide && (Math.abs(STRAIGHTUPPPPPower) > .1)) {
-                STRAIGHTUPPPP.setPower(-STRAIGHTUPPPPPower * .5);
-            } else if (Math.abs(STRAIGHTUPPPPPower) > .1) { // Small deadzone to counteract stick drift
-                STRAIGHTUPPPP.setPower(-STRAIGHTUPPPPPower);
-            } else {
-                STRAIGHTUPPPP.setPower(0);
-            }
+            //TODO: add function where instead of handling driver's custom heights and the driver's selected
+            // automatic heights separately, while the lift driver's joystick is controlling the lift, set the current
+            // lift position as the desired position, so that when the driver lets go of the controller, the lift stays there.
+            // The driver can adjust from there with more custom stuff, or can set the desired position based off of pre-made
+            // heights for things like automatic pickup heights and different junction heights.
 
-            // Automatic pickup code:
+
+            // Automatic pickup code
+            currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
             if (gamepad2.b) { // cancel button
-                desiredLiftPosition = liftInchesToTicks(6);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
             }
-            if (gamepad2.a) { // initiate auto pickup
-                desiredLiftPosition = liftInchesToTicks(6);
-                autoPoiseLift = true;
+            if (gamepad2.a) { // initiate auto pickup sequence
+                autoPoiseLift = true; // start first auto pickup sequence
             }
             if (autoPoiseLift) {
-                autoPickupOpenClip = true;
-                robotControlLift = true;
-                if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition) {
-                    autoPoiseLift = false;
-                    desiredLiftPosition = liftInchesToTicks(0);
+                desiredLiftPosition = liftInchesToTicks(6); // tell height handler to start adjusting height
+                autoPickupOpenClip = true; // open clip
+                if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.3 && liftAtDesiredPosition && clampyBoi.getPosition() == 0.12) {
                     autoStrikeLift = true;
-                    timer.reset();
+                    autoPoiseLift = false;
+                    liftAtDesiredPosition = false;
                 }
             }
             if (autoStrikeLift) {
-                autoPickupOpenClip = false;
-                if ((clampyBoi.getPosition() < .0109) && (timer.time() > .5) && liftAtDesiredPosition) {
-                    autoStrikeLift = false;
-                    robotControlLift = true;
-                    desiredLiftPosition = liftInchesToTicks(6);
+                desiredLiftPosition = liftInchesToTicks(0);
+                if (liftAtDesiredPosition) {
+                    autoPickupOpenClip = false;
                     autoRePoiseLift = true;
+                    autoStrikeLift = false;
+                    liftAtDesiredPosition = false;
+                    clampyBoiMovementTimer.reset();
                 }
             }
             if (autoRePoiseLift) {
-                robotControlLift = true;
-                if(liftAtDesiredPosition){
-                    autoRePoiseLift = false;
+                if(clampyBoiMovementTimer.seconds() > .2) {
+                    desiredLiftPosition = liftInchesToTicks(6);
+                    if (liftAtDesiredPosition) {
+                        autoRePoiseLift = false;
+                    }
                 }
             }
-/*
-            if (gamepad2.dpad_up){
-                desiredLiftPosition = 6000;
-                robotControlLift = true;
-            }
-            */
 
+
+            if(gamepad2.dpad_down){
+                desiredLiftPosition = liftInchesToTicks(5);
+                autoPoiseLift = false;
+                autoStrikeLift = false;
+                autoRePoiseLift = false;
+                autoPickupOpenClip = false;
+                autoScoreOpenClip = false;
+            }
+            if(gamepad2.dpad_right){
+                desiredLiftPosition = liftInchesToTicks(15);
+                autoPoiseLift = false;
+                autoStrikeLift = false;
+                autoRePoiseLift = false;
+                autoPickupOpenClip = false;
+                autoScoreOpenClip = false;
+            }
+            if(gamepad2.dpad_left){
+                desiredLiftPosition = liftInchesToTicks(25);
+                autoPoiseLift = false;
+                autoStrikeLift = false;
+                autoRePoiseLift = false;
+                autoPickupOpenClip = false;
+                autoScoreOpenClip = false;
+            }
+            if(gamepad2.dpad_up){
+                desiredLiftPosition = liftInchesToTicks(35);
+                autoPoiseLift = false;
+                autoStrikeLift = false;
+                autoRePoiseLift = false;
+                autoPickupOpenClip = false;
+                autoScoreOpenClip = false;
+            }
             currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
-            ticksNeeded = desiredLiftPosition - currentLiftPosition;
-
-            if (Math.abs(ticksNeeded) > 20 && robotControlLift){
-                STRAIGHTUPPPP.setPower(1 * signum(ticksNeeded));
-                liftAtDesiredPosition = false;
+            if(!(gamepad2.left_stick_y == 0)){
+                autoPoiseLift = false;
+                autoStrikeLift = false;
+                autoRePoiseLift = false;
+                autoPickupOpenClip = false;
+                autoScoreOpenClip = false;
+                STRAIGHTUPPPP.setPower(-gamepad2.left_stick_y);
+                desiredLiftPosition = currentLiftPosition;
             }else{
-                liftAtDesiredPosition = true;
-                robotControlLift = false;
+                liftTicksNeeded = desiredLiftPosition - currentLiftPosition;
+                if (Math.abs(liftTicksNeeded) > 50) {
+                    STRAIGHTUPPPP.setPower(Math.abs(liftTicksNeeded)/400 * signum(liftTicksNeeded));
+                    liftAtDesiredPosition = false;
+                } else {
+                    STRAIGHTUPPPP.setPower(Math.abs(liftTicksNeeded)/400 * signum(liftTicksNeeded));
+                    liftAtDesiredPosition = true;
+                }
             }
 
+            // color sensor handling
             double redVal = colorSensor.red();
             double greenVal = colorSensor.green();
             double blueVal = colorSensor.blue();
@@ -286,29 +308,28 @@ public class CookingWithGasEnhanced extends LinearOpMode {
             }
 
 
-// END OF MAIN SCORING CODE -----------------------------
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Red percent: ", redPercent);
-            telemetry.addData("Green percent: ", greenPercent);
-            telemetry.addData("Blue percent: ", bluePercent);
-            telemetry.addData("Red value: ", redVal);
-            telemetry.addData("Green value: ", greenVal);
-            telemetry.addData("Blue value: ", blueVal);
-            telemetry.addData("seeing silver? ", seeingSilver);
-            telemetry.addData("seeingRed?", seeingRed);
-            telemetry.addData("seeingBlue?", seeingBlue);
-            telemetry.addData("Motors", "Front Left (%.2f), Front Right (%.2f), Back Left (%.2f), " + "Back Right (%.2f)", frontLeftPower, frontRightPower, backLeftPower, backRightPower);
-            telemetry.addData("Distance (in inches)", centerDistanceSensor.getDistance(DistanceUnit.INCH));
+
+            /*telemetry.addData("Motors", "Front Left (%.2f), Front Right (%.2f), Back Left (%.2f), " + "Back Right (%.2f)", frontLeftPower, frontRightPower, backLeftPower, backRightPower);
+            telemetry.addData("gp2 left joystick y value: ", gamepad2.left_stick_y);
+            telemetry.addData("Lift position: ", STRAIGHTUPPPP.getCurrentPosition());
+            telemetry.addData("desired lift position: ", desiredLiftPosition);
+            telemetry.addData("liftTicksNeeded: ", liftTicksNeeded);
+            */
+            telemetry.addData("distance sensed: ", centerDistanceSensor.getDistance(DistanceUnit.INCH));
+            telemetry.addData("lift at desired position? ", liftAtDesiredPosition);
+            telemetry.addData("clampyBoi position: ", clampyBoi.getPosition());
+            telemetry.addData("autoPoiseLift?: ", autoPoiseLift);
+            telemetry.addData("autoStrikeLift?: ", autoStrikeLift);
+            telemetry.addData("autoRePoiseLift? ", autoRePoiseLift);
+            telemetry.addData("auto pose lift exit ticket ", (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11));
+            //centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11
             telemetry.update();
         }
     }
 
-
     public static double liftInchesToTicks(double inches){
-        double inchesPerRev = (2 * Math.PI);
-        double ticks_per_inch = (1120 / inchesPerRev);
-        double ticks = inches * ticks_per_inch;
-        return ticks;
+        int ticksPerInch = 176;
+        return inches*ticksPerInch;
     }
 }

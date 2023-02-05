@@ -50,6 +50,7 @@ public class HotRadTeleEnhancedPickupDrop extends LinearOpMode {
         boolean autoDropRequest = false;
         double ticksNeeded;
         boolean robotControlLift = false;
+        double STRAIGHTUPPPPPower = 0;
         ElapsedTime timer = new ElapsedTime();
 
 /*
@@ -140,7 +141,7 @@ do stuff.
             double y = gamepad1.left_stick_y * .8; // Remember, this is reversed!
             double x = gamepad1.left_stick_x * .8; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x * .8;
-            double STRAIGHTUPPPPPower = gamepad2.left_stick_y;
+            STRAIGHTUPPPPPower = gamepad2.left_stick_y;
 
             if (gamepad2.x) {
                 autoDropRequest = true;
