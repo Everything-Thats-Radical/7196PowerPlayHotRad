@@ -52,6 +52,10 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
         boolean robotControlLift = false;
         double liftTicksNeeded = 0;
         double STRAIGHTUPPPPPower = 0;
+        int coneStackHeight = 0; // number of cones on stack
+        boolean xReleased = true;
+        double poiseHeight = 0;
+        double strikeHeight = 0;
         double speedMultiplier;
         ElapsedTime timer = new ElapsedTime();
         boolean LiftSlowmode = gamepad2.right_bumper;
@@ -183,6 +187,15 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             // The driver can adjust from there with more custom stuff, or can set the desired position based off of pre-made
             // heights for things like automatic pickup heights and different junction heights.
 
+            if(xReleased && gamepad2.x){
+                if(coneStackHeight < 5){
+                    coneStackHeight++;
+                }
+                xReleased = false;
+            } else if (!xReleased && !gamepad2.x){
+                xReleased = true;
+            }
+
             currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
             if(!(gamepad2.left_stick_y == 0)){
                 robotControlLift = false;
@@ -192,12 +205,13 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
                 STRAIGHTUPPPP.setPower((-gamepad2.left_stick_y));
-                desiredLiftPosition = currentLiftPosition;
+                coneStackHeight=0;
             } else if(gamepad2.dpad_down || gamepad2.dpad_up || gamepad2.dpad_left || gamepad2.dpad_right){
                 robotControlLift = true;
             } else{
                 STRAIGHTUPPPP.setPower(0);
             }
+
 
             // Automatic pickup code
             currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
@@ -207,21 +221,48 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoRePoiseLift = false;
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
+                robotControlLift = false;
+                coneStackHeight=0;
             }
             if (gamepad2.a) { // initiate auto pickup sequence
+                switch(coneStackHeight){
+                    case 0:
+                    case 1:
+                        strikeHeight = liftInchesToTicks(1.1);
+                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        break;
+                    case 2:
+                        strikeHeight = liftInchesToTicks(2.4);
+                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        break;
+                    case 3:
+                        strikeHeight = liftInchesToTicks(3.4);
+                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        break;
+                    case 4:
+                        strikeHeight = liftInchesToTicks(5.3);
+                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        break;
+                    case 5:
+                        strikeHeight = liftInchesToTicks(6.8);
+                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        break;
+
+                }
                 autoPoiseLift = true; // start first auto pickup sequence
+                robotControlLift = true;
             }
             if (autoPoiseLift) {
-                desiredLiftPosition = liftInchesToTicks(6); // tell height handler to start adjusting height
+                desiredLiftPosition = poiseHeight; // tell height handler to start adjusting height
                 autoPickupOpenClip = true; // open clip
-                if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.3 && liftAtDesiredPosition && clampyBoi.getPosition() == 0.12) {
+                if (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1 && liftAtDesiredPosition && clampyBoi.getPosition() == 0.12) {
                     autoStrikeLift = true;
                     autoPoiseLift = false;
                     liftAtDesiredPosition = false;
                 }
             }
             if (autoStrikeLift) {
-                desiredLiftPosition = liftInchesToTicks(0);
+                desiredLiftPosition = strikeHeight;
                 if (liftAtDesiredPosition) {
                     autoPickupOpenClip = false;
                     autoRePoiseLift = true;
@@ -232,13 +273,13 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             }
             if (autoRePoiseLift) {
                 if(clampyBoiMovementTimer.seconds() > .2) {
-                    desiredLiftPosition = liftInchesToTicks(6);
+                    desiredLiftPosition = poiseHeight;
                     if (liftAtDesiredPosition) {
                         autoRePoiseLift = false;
+                        coneStackHeight = 0;
                     }
                 }
             }
-
 
             if(gamepad2.dpad_down){
                 desiredLiftPosition = liftInchesToTicks(3);
@@ -247,6 +288,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoRePoiseLift = false;
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
+                coneStackHeight=0;
             }
             if(gamepad2.dpad_right){
                 desiredLiftPosition = liftInchesToTicks(16);
@@ -255,6 +297,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoRePoiseLift = false;
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
+                coneStackHeight=0;
             }
             if(gamepad2.dpad_left){
                 desiredLiftPosition = liftInchesToTicks(26);
@@ -263,6 +306,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoRePoiseLift = false;
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
+                coneStackHeight=0;
             }
             if(gamepad2.dpad_up){
                 desiredLiftPosition = liftInchesToTicks(36);
@@ -271,11 +315,17 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoRePoiseLift = false;
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
+                coneStackHeight=0;
             }
 
             if(robotControlLift){
                 liftTicksNeeded = desiredLiftPosition - currentLiftPosition;
-                STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
+                if ((Math.abs(liftTicksNeeded)/200) > .1){ // .1 is the minimum power deliverable by the lift motor to still move the lift.
+                    // essentially, if we know we can't move the lift, we don't.
+                    STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
+                }else{
+                    STRAIGHTUPPPP.setPower(0);
+                }
                 if (Math.abs(liftTicksNeeded) > 20) { // change this to 30?
                     liftAtDesiredPosition = false;
                 } else {
@@ -343,6 +393,10 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             telemetry.addData("desired position:  ", desiredLiftPosition);
             telemetry.addData("ticks needed ", liftTicksNeeded);
             telemetry.addData("robot control lift? ", robotControlLift);
+            telemetry.addData("x released? ", xReleased);
+            telemetry.addData("coneStackHeight: ", coneStackHeight);
+            telemetry.addData("poiseHeight: ", poiseHeight);
+            telemetry.addData("strikeHeight: ", strikeHeight);
 
             //centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11
             telemetry.update();
