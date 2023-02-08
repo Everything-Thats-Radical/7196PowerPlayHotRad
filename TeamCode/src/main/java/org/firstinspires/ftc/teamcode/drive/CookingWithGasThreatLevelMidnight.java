@@ -53,6 +53,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
         double STRAIGHTUPPPPPower = 0;
         double speedMultiplier;
         ElapsedTime timer = new ElapsedTime();
+        boolean LiftSlowmode = gamepad2.right_bumper;
 
         telemetry.addData("Status", "Initializing");
         telemetry.update();
@@ -102,7 +103,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 ((SwitchableLight) colorSensor).enableLight(true);
             }
 
-
+            double liftMult = 1;
             double y = gamepad1.left_stick_y;
             double x = -gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
@@ -119,6 +120,14 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             if(gamepad1.a){
                 desiredHeading = aHeading;
             }
+
+            if(LiftSlowmode){
+                liftMult = .5;
+            } else {
+                liftMult = 1;
+            }
+
+
 
             boolean clawOpen = gamepad2.y;
             boolean slowMode = gamepad1.right_bumper;
@@ -214,9 +223,8 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 }
             }
 
-
             if(gamepad2.dpad_down){
-                desiredLiftPosition = liftInchesToTicks(5);
+                desiredLiftPosition = liftInchesToTicks(3);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -224,7 +232,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoScoreOpenClip = false;
             }
             if(gamepad2.dpad_right){
-                desiredLiftPosition = liftInchesToTicks(15);
+                desiredLiftPosition = liftInchesToTicks(16);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -232,7 +240,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoScoreOpenClip = false;
             }
             if(gamepad2.dpad_left){
-                desiredLiftPosition = liftInchesToTicks(25);
+                desiredLiftPosition = liftInchesToTicks(26);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -240,7 +248,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoScoreOpenClip = false;
             }
             if(gamepad2.dpad_up){
-                desiredLiftPosition = liftInchesToTicks(35);
+                desiredLiftPosition = liftInchesToTicks(36);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -254,15 +262,15 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoRePoiseLift = false;
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
-                STRAIGHTUPPPP.setPower(-gamepad2.left_stick_y);
+                STRAIGHTUPPPP.setPower((-gamepad2.left_stick_y));
                 desiredLiftPosition = currentLiftPosition;
             }else{
                 liftTicksNeeded = desiredLiftPosition - currentLiftPosition;
-                if (Math.abs(liftTicksNeeded) > 50) {
-                    STRAIGHTUPPPP.setPower(Math.abs(liftTicksNeeded)/400 * signum(liftTicksNeeded));
+                if (Math.abs(liftTicksNeeded) > 10) { // change this to 30?
+                    STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
                     liftAtDesiredPosition = false;
                 } else {
-                    STRAIGHTUPPPP.setPower(Math.abs(liftTicksNeeded)/400 * signum(liftTicksNeeded));
+                    STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
                     liftAtDesiredPosition = true;
                 }
             }
@@ -307,7 +315,6 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoScoreOpenClip = false;
             }
 
-
             // Show the elapsed game time and wheel power.
 
             /*telemetry.addData("Motors", "Front Left (%.2f), Front Right (%.2f), Back Left (%.2f), " + "Back Right (%.2f)", frontLeftPower, frontRightPower, backLeftPower, backRightPower);
@@ -323,13 +330,17 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             telemetry.addData("autoStrikeLift?: ", autoStrikeLift);
             telemetry.addData("autoRePoiseLift? ", autoRePoiseLift);
             telemetry.addData("auto pose lift exit ticket ", (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11));
+            telemetry.addData("STRAIGHTUPPPP power ", STRAIGHTUPPPP.getPower());
+            telemetry.addData("ticks needed ", liftTicksNeeded);
+            telemetry.addData("liftPosition:  ", STRAIGHTUPPPP.getCurrentPosition());
+
             //centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11
             telemetry.update();
         }
     }
 
     public static double liftInchesToTicks(double inches){
-        int ticksPerInch = 176;
+        int ticksPerInch = 180;
         return inches*ticksPerInch;
     }
 }
