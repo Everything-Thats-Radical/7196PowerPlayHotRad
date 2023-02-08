@@ -49,6 +49,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
         boolean autoPickupOpenClip = false;
         boolean autoScoreOpenClip = false;
         boolean autoDropRequest = false;
+        boolean robotControlLift = false;
         double liftTicksNeeded = 0;
         double STRAIGHTUPPPPPower = 0;
         double speedMultiplier;
@@ -182,6 +183,21 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             // The driver can adjust from there with more custom stuff, or can set the desired position based off of pre-made
             // heights for things like automatic pickup heights and different junction heights.
 
+            currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
+            if(!(gamepad2.left_stick_y == 0)){
+                robotControlLift = false;
+                autoPoiseLift = false;
+                autoStrikeLift = false;
+                autoRePoiseLift = false;
+                autoPickupOpenClip = false;
+                autoScoreOpenClip = false;
+                STRAIGHTUPPPP.setPower((-gamepad2.left_stick_y));
+                desiredLiftPosition = currentLiftPosition;
+            } else if(gamepad2.dpad_down || gamepad2.dpad_up || gamepad2.dpad_left || gamepad2.dpad_right){
+                robotControlLift = true;
+            } else{
+                STRAIGHTUPPPP.setPower(0);
+            }
 
             // Automatic pickup code
             currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
@@ -223,6 +239,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 }
             }
 
+
             if(gamepad2.dpad_down){
                 desiredLiftPosition = liftInchesToTicks(3);
                 autoPoiseLift = false;
@@ -255,22 +272,13 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 autoPickupOpenClip = false;
                 autoScoreOpenClip = false;
             }
-            currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
-            if(!(gamepad2.left_stick_y == 0)){
-                autoPoiseLift = false;
-                autoStrikeLift = false;
-                autoRePoiseLift = false;
-                autoPickupOpenClip = false;
-                autoScoreOpenClip = false;
-                STRAIGHTUPPPP.setPower((-gamepad2.left_stick_y));
-                desiredLiftPosition = currentLiftPosition;
-            }else{
+
+            if(robotControlLift){
                 liftTicksNeeded = desiredLiftPosition - currentLiftPosition;
-                if (Math.abs(liftTicksNeeded) > 10) { // change this to 30?
-                    STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
+                STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
+                if (Math.abs(liftTicksNeeded) > 20) { // change this to 30?
                     liftAtDesiredPosition = false;
                 } else {
-                    STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
                     liftAtDesiredPosition = true;
                 }
             }
@@ -324,15 +332,17 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             telemetry.addData("liftTicksNeeded: ", liftTicksNeeded);
             */
             telemetry.addData("distance sensed: ", centerDistanceSensor.getDistance(DistanceUnit.INCH));
-            telemetry.addData("lift at desired position? ", liftAtDesiredPosition);
             telemetry.addData("clampyBoi position: ", clampyBoi.getPosition());
             telemetry.addData("autoPoiseLift?: ", autoPoiseLift);
             telemetry.addData("autoStrikeLift?: ", autoStrikeLift);
             telemetry.addData("autoRePoiseLift? ", autoRePoiseLift);
             telemetry.addData("auto pose lift exit ticket ", (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11));
             telemetry.addData("STRAIGHTUPPPP power ", STRAIGHTUPPPP.getPower());
-            telemetry.addData("ticks needed ", liftTicksNeeded);
+            telemetry.addData("lift at desired position? ", liftAtDesiredPosition);
             telemetry.addData("liftPosition:  ", STRAIGHTUPPPP.getCurrentPosition());
+            telemetry.addData("desired position:  ", desiredLiftPosition);
+            telemetry.addData("ticks needed ", liftTicksNeeded);
+            telemetry.addData("robot control lift? ", robotControlLift);
 
             //centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11
             telemetry.update();
