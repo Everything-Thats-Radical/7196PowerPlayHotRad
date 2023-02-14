@@ -25,6 +25,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
         ElapsedTime runtime = new ElapsedTime(); // keep track of elapsed time. Not used except for telemetry
         ElapsedTime autoDropRequestTimer = new ElapsedTime();// Timer to keep track of movements with automatic pickup
         ElapsedTime clampyBoiMovementTimer = new ElapsedTime();
+        ElapsedTime autoDropAlertTimer = new ElapsedTime();
         // The claw servo is usually slower than we would like, so we add waits before the lift can move.
         DcMotor FLDrive = null; // standard motor declarations
         DcMotor FRDrive = null;
@@ -59,6 +60,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
         double speedMultiplier;
         ElapsedTime timer = new ElapsedTime();
         boolean LiftSlowmode = gamepad2.right_bumper;
+        boolean distanceSensorLightOn = true;
 
         telemetry.addData("Status", "Initializing");
         telemetry.update();
@@ -178,7 +180,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             } else if (clawOpen) {
                 clampyBoi.setPosition(.12);
             } else {
-                clampyBoi.setPosition(.01);
+                clampyBoi.setPosition(.00);
             }
 
             //TODO: add function where instead of handling driver's custom heights and the driver's selected
@@ -194,6 +196,19 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 xReleased = false;
             } else if (!xReleased && !gamepad2.x){
                 xReleased = true;
+            }
+
+            if (gamepad2.left_trigger > 0){
+                coneStackHeight = 2;
+            }
+            if (gamepad2.right_trigger > 0){
+                coneStackHeight = 3;
+            }
+            if (gamepad2.left_bumper){
+                coneStackHeight = 4;
+            }
+            if (gamepad2.right_bumper){
+                coneStackHeight = 5;
             }
 
             currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
@@ -212,6 +227,10 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 STRAIGHTUPPPP.setPower(0);
             }
 
+            if(((gamepad1.right_trigger)>.05) && ((gamepad1.left_trigger))>.05){
+                imu.resetYaw();
+            }
+
 
             // Automatic pickup code
             currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
@@ -228,24 +247,24 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 switch(coneStackHeight){
                     case 0:
                     case 1:
-                        strikeHeight = liftInchesToTicks(1.1);
-                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        strikeHeight = liftInchesToTicks(0);
+                        poiseHeight = strikeHeight + liftInchesToTicks(5);
                         break;
                     case 2:
-                        strikeHeight = liftInchesToTicks(2.4);
+                        strikeHeight = liftInchesToTicks(1.5);
                         poiseHeight = strikeHeight + liftInchesToTicks(6);
                         break;
                     case 3:
-                        strikeHeight = liftInchesToTicks(3.4);
+                        strikeHeight = liftInchesToTicks(3.1);
                         poiseHeight = strikeHeight + liftInchesToTicks(6);
                         break;
                     case 4:
-                        strikeHeight = liftInchesToTicks(5.3);
-                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        strikeHeight = liftInchesToTicks(4.4);
+                        poiseHeight = liftInchesToTicks(9.8);
                         break;
                     case 5:
-                        strikeHeight = liftInchesToTicks(6.8);
-                        poiseHeight = strikeHeight + liftInchesToTicks(6);
+                        strikeHeight = liftInchesToTicks(5.4);
+                        poiseHeight = liftInchesToTicks(9.8);
                         break;
 
                 }
@@ -300,7 +319,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 coneStackHeight=0;
             }
             if(gamepad2.dpad_left){
-                desiredLiftPosition = liftInchesToTicks(26);
+                desiredLiftPosition = liftInchesToTicks(25.5);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -309,7 +328,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 coneStackHeight=0;
             }
             if(gamepad2.dpad_up){
-                desiredLiftPosition = liftInchesToTicks(36);
+                desiredLiftPosition = liftInchesToTicks(35);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -359,15 +378,41 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             } else {
                 seeingBlue = false;
             }
-            if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) > 0.35) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4) && (seeingRed || seeingBlue) && (autoDropRequest)) {//1.3
+            if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) > 0.35) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4) && (seeingRed || seeingBlue) && (STRAIGHTUPPPP.getCurrentPosition() > liftInchesToTicks(6))) {//1.3
+                if(autoDropAlertTimer.seconds() > 1/8){
+                    if (distanceSensorLightOn){
+                        ((SwitchableLight) colorSensor).enableLight(false);
+                        distanceSensorLightOn = false;
+                        autoDropAlertTimer.reset();
+                    }else{
+                        ((SwitchableLight) colorSensor).enableLight(true);
+                        distanceSensorLightOn = true;
+                        autoDropAlertTimer.reset();
+                    }
+                }
+                /*
                 autoScoreOpenClip = true;
                 autoDropRequestTimer.reset();
                 autoDropRequest = false;
+                */
+
             }
-            if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.5) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) > 1) && (seeingSilver) && (autoDropRequest)) {
+            if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.5) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) > 1) && (seeingSilver) && (STRAIGHTUPPPP.getCurrentPosition() > liftInchesToTicks(6))) {
+                if (distanceSensorLightOn){
+                    ((SwitchableLight) colorSensor).enableLight(false);
+                    distanceSensorLightOn = false;
+                    autoDropAlertTimer.reset();
+                }else{
+                    ((SwitchableLight) colorSensor).enableLight(true);
+                    distanceSensorLightOn = true;
+                    autoDropAlertTimer.reset();
+                }
+                /*
                 autoScoreOpenClip = true;
                 autoDropRequestTimer.reset();
                 autoDropRequest = false;
+                */
+
             }
             if (autoScoreOpenClip && autoDropRequestTimer.time() > .5) {
                 autoScoreOpenClip = false;
