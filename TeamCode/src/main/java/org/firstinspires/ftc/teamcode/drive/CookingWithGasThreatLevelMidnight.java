@@ -264,7 +264,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                         break;
                     case 5:
                         strikeHeight = liftInchesToTicks(5.4);
-                        poiseHeight = liftInchesToTicks(9.8);
+                        poiseHeight = liftInchesToTicks(10.3);
                         break;
 
                 }
@@ -378,7 +378,9 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             } else {
                 seeingBlue = false;
             }
+            /*
             if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) > 0.35) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4) && (seeingRed || seeingBlue) && (STRAIGHTUPPPP.getCurrentPosition() > liftInchesToTicks(6))) {//1.3
+
                 if(autoDropAlertTimer.seconds() > 1/8){
                     if (distanceSensorLightOn){
                         ((SwitchableLight) colorSensor).enableLight(false);
@@ -390,11 +392,13 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                         autoDropAlertTimer.reset();
                     }
                 }
-                /*
+
+
+
                 autoScoreOpenClip = true;
                 autoDropRequestTimer.reset();
                 autoDropRequest = false;
-                */
+
 
             }
             if ((centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.5) && (centerDistanceSensor.getDistance(DistanceUnit.INCH) > 1) && (seeingSilver) && (STRAIGHTUPPPP.getCurrentPosition() > liftInchesToTicks(6))) {
@@ -407,17 +411,17 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                     distanceSensorLightOn = true;
                     autoDropAlertTimer.reset();
                 }
-                /*
+
                 autoScoreOpenClip = true;
                 autoDropRequestTimer.reset();
                 autoDropRequest = false;
-                */
+
 
             }
             if (autoScoreOpenClip && autoDropRequestTimer.time() > .5) {
                 autoScoreOpenClip = false;
             }
-
+*/
             // Show the elapsed game time and wheel power.
 
             /*telemetry.addData("Motors", "Front Left (%.2f), Front Right (%.2f), Back Left (%.2f), " + "Back Right (%.2f)", frontLeftPower, frontRightPower, backLeftPower, backRightPower);
