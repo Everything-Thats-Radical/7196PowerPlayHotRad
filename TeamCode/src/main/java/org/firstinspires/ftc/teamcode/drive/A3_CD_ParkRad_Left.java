@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,7 +25,7 @@ Although janky, we accept it as beautiful, brave, and stunning. If you don't acc
 literally codiphobic and want all the poor starving children in Africa to die.
 
 */
-
+@Disabled
 @Autonomous(name = "A3_CD_ParkRad_Left")
 public class A3_CD_ParkRad_Left extends LinearOpMode {
 

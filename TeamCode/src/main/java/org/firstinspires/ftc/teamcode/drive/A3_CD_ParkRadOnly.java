@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 Although janky, we accept it as beautiful, brave, and stunning. If you don't accept it, you are
 literally codiphobic and want all the poor starving children in Africa to die.
 */
-
+@Disabled
 @Autonomous(name = "A3_CD_ParkRad_Only")
 public class A3_CD_ParkRadOnly extends LinearOpMode {
 
