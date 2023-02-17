@@ -6,6 +6,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.util.Encoder;
 
 @TeleOp (name = "CookingWithGasThreatLevelMidnight", group = "Iterative Opmode")
 public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
@@ -64,7 +66,9 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
 
         telemetry.addData("Status", "Initializing");
         telemetry.update();
-
+        Encoder leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftOdoPod"));
+        Encoder rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightOdoPod"));
+        Encoder frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "backOdoPod"));
         FLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
         FRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
         BLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
@@ -446,6 +450,9 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
             telemetry.addData("coneStackHeight: ", coneStackHeight);
             telemetry.addData("poiseHeight: ", poiseHeight);
             telemetry.addData("strikeHeight: ", strikeHeight);
+            telemetry.addData("right encoder: ", rightEncoder.getCurrentPosition());
+            telemetry.addData("left encoder: ", leftEncoder.getCurrentPosition());
+            telemetry.addData("back encoder: ", frontEncoder.getCurrentPosition());
 
             //centerDistanceSensor.getDistance(DistanceUnit.INCH) < 1.4 && liftAtDesiredPosition && clampyBoi.getPosition() > 0.11
             telemetry.update();
