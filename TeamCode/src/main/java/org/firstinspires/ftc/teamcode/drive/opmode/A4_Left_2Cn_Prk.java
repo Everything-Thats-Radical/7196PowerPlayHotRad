@@ -78,94 +78,107 @@ public class A4_Left_2Cn_Prk extends LinearOpMode {
 
 
         TrajectorySequence driveToScan = drive.trajectorySequenceBuilder(startPose)
-                .addDisplacementMarker(() -> {
-                    clawControl("clamp");
-                    setLift(6);
-                })
-                .forward(27.5,
+                .forward(23.5,
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .forward(3,
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         // SCAN CONE
-        TrajectorySequence pushConeAndPositionOverLowForPreloadScore = drive.trajectorySequenceBuilder(driveToScan.end())
-                .forward(30, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+        TrajectorySequence pushConeAndLookAtLowForPreloadScore = drive.trajectorySequenceBuilder(driveToScan.end())
+                .forward(31, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .back(18, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(18, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .addDisplacementMarker(() -> {
+                    clawControl("clamp");
                     setLift(16);
                 })
                 .turn(Math.toRadians(90))
-                .forward(6.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .addDisplacementMarker(() -> {
-                    clawControl("release");
-                })
                 .build();
         // RAISE LIFT TO MEDIUM
+        Trajectory positionOverLowPreload = drive.trajectoryBuilder(pushConeAndLookAtLowForPreloadScore.end())
+                .forward(6.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
         // DROP CONE
-        Trajectory retreatFromPreloadScore = drive.trajectoryBuilder(pushConeAndLookAtLowForPreloadScore.end())
+        Trajectory retreatFromPreloadScore = drive.trajectoryBuilder(positionOverLowPreload.end())
                 .back(6.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         // LOWER LIFT TO 5 STACK HEIGHT
         TrajectorySequence positionOverStack1stCone = drive.trajectorySequenceBuilder(retreatFromPreloadScore.end())
+                .addDisplacementMarker(() -> {
+                    setLift(10.3);
+                })
                 .turn(Math.toRadians(-90))
-                .forward(12, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(11, SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .turn(Math.toRadians(90))
-                .forward(30, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(25, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .forward(4, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         // PICK CONE UP
         TrajectorySequence lookAtMediumFromStack1stCone = drive.trajectorySequenceBuilder(positionOverStack1stCone.end())
-                .back(42, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(39, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(90)
+                .turn(Math.toRadians(90))
+                .addDisplacementMarker(() -> {
+                    setLift(20);
+                })
                 .build();
         // RAISE LIFT TO MEDIUM
         TrajectorySequence positionOverMedium1stCone = drive.trajectorySequenceBuilder(lookAtMediumFromStack1stCone.end())
-                .forward(6.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(5.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         // DROP CONE
         TrajectorySequence retreatFromMedium1stCone = drive.trajectorySequenceBuilder(positionOverMedium1stCone.end())
-                .back(6.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(5.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         // LOWER LIFT TO 4 STACK HEIGHT
         // LOWER LIFT TO HEIGHT ZERO
         TrajectorySequence driveToGreenZone = drive.trajectorySequenceBuilder(retreatFromMedium1stCone.end())
                 .turn(Math.toRadians(-90))
-                .forward(12, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(12, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(Math.toRadians(90))
+                .turn(Math.toRadians(-90))
                 .build();
-/*
-        Trajectory parkBlue = drive.trajectoryBuilder(driveToGreenZone.end())
-                .lineToLinearHeading(new Pose2d(60, -36, Math.toRadians(90)),
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+        TrajectorySequence driveToRedZone = drive.trajectorySequenceBuilder(retreatFromMedium1stCone.end())
+                .turn(Math.toRadians(-90))
+                .forward(36, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .turn(Math.toRadians(-90))
                 .build();
-        Trajectory parkRed = drive.trajectoryBuilder(driveToGreenZone.end())
-                .lineToLinearHeading(new Pose2d(12, -36, Math.toRadians(180)),
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+        TrajectorySequence driveToBlueZone = drive.trajectorySequenceBuilder(retreatFromMedium1stCone.end())
+                .turn(Math.toRadians(-90))
+                .back(12, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .turn(Math.toRadians(-90))
                 .build();
-*/
+
 
         waitForStart();
 
         if(isStopRequested()) return;
 
         clawControl("clamp");
+        sleep(200);
+        setLift(6);
+        clawControl("clamp");
         drive.followTrajectorySequence(driveToScan);
-
+        sleep(2000);
 
         String coneColor = "green";
         int totalReds = colorSensor.red();
         int totalGreens = colorSensor.green();
         int totalBlues = colorSensor.blue();
+
+
 
         if (totalReds > totalGreens && totalReds > totalBlues) {
             coneColor = "red";
@@ -175,20 +188,67 @@ public class A4_Left_2Cn_Prk extends LinearOpMode {
             coneColor = "blue";
         }
 
-        drive.followTrajectorySequence(pushConeAndLookAtLowForPreloadScore);
-        // RAISE LIFT TO MEDIUM
-        // DROP CONE
+        telemetry.addData("reds: ", totalReds);
+        telemetry.addData("greens: ", totalGreens);
+        telemetry.addData("blues: ", totalBlues);
+        telemetry.addData("Cone color", coneColor);
+        telemetry.update();
+
+        sleep(2000);
+
+        drive.followTrajectorySequence(pushConeAndLookAtLowForPreloadScore); // LIFT IS SET TO 16 IN DURING THIS TRAJECTORY SEQUENCE
+
+        drive.followTrajectory(positionOverLowPreload);
+        setLift(14);
+        clawControl("release"); // DROP CONE
+        sleep(300);
+        setLift(16);
+        clawControl("clamp");
+
         drive.followTrajectory(retreatFromPreloadScore);
-        // LOWER LIFT TO 5 STACK HEIGHT
-        drive.followTrajectorySequence(positionOverStack1stCone);
-        // PICK CONE UP
-        drive.followTrajectorySequence(lookAtMediumFromStack1stCone);
-        // RAISE LIFT TO MEDIUM
+
+        drive.followTrajectorySequence(positionOverStack1stCone); // LIFT IS LOWERED TO 10.3 IN (5 CONE HEIGHT) DURING THIS
+        clawControl("release"); // PICK CONE UP
+        sleep(300);
+        setLift(5);
+        clawControl("clamp"); // PICK CONE UP
+        sleep(300);
+        setLift(12);
+
+        drive.followTrajectorySequence(lookAtMediumFromStack1stCone); // LIFT IS SET TO 20 IN DURING THIS TO SAVE TIME
+        setLift(25.5); // RAISE LIFT TO MEDIUM
+
         drive.followTrajectorySequence(positionOverMedium1stCone);
-        // DROP CONE
+        setLift(23.5);
+        clawControl("release");
+        sleep(300); // DROP CONE
+        setLift(25.5);
+        clawControl("clamp");
+
         drive.followTrajectorySequence(retreatFromMedium1stCone);
-        // LOWER LIFT TO 0
-        drive.followTrajectorySequence(driveToGreenZone);
+        setLift(0);
+
+        if (coneColor.equals("red")) {
+            telemetry.addData("Color: ", coneColor);
+            telemetry.update();
+            drive.followTrajectorySequence(driveToRedZone);
+
+        } else if (coneColor.equals("green")) {
+            telemetry.addData("Color: ", coneColor);
+            telemetry.update();
+            drive.followTrajectorySequence(driveToGreenZone);
+
+        } else if (coneColor.equals("blue")) {
+            telemetry.addData("Color: ", coneColor);
+            telemetry.update();
+            drive.followTrajectorySequence(driveToBlueZone);
+
+        } else {
+            String noColor = "Color not detected.";
+            telemetry.addData("Color: ", noColor);
+            telemetry.update();
+        }
+
         /*
         clawControl("clamp");
         moveLift("up", 27, .5);
