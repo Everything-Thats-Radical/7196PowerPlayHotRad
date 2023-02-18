@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 //import com.google.blocks.ftcrobotcontroller.runtime.BNO055IMUAccess; Had imported, but was giving error
 // kept it in just in case, because I (Isaiah) am not sure it was me who wanted it here
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.lang.Math;
 
-
+@Disabled
 @TeleOp (name = "TeleAxisLock", group = "Iterative Opmode")
 public class TeleAxisLock extends OpMode {
 

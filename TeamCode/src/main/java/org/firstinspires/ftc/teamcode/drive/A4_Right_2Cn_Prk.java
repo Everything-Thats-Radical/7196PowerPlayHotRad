@@ -96,12 +96,12 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
                 .build();
         // RAISE LIFT TO MEDIUM
         Trajectory positionOverLowPreload = drive.trajectoryBuilder(pushConeAndLookAtLowForPreloadScore.end())
-                .forward(6, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(5.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//10
                 .build();
         // DROP CONE
         Trajectory retreatFromPreloadScore = drive.trajectoryBuilder(positionOverLowPreload.end())
-                .back(6, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(5.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//10
                 .build();
         // LOWER LIFT TO 5 STACK HEIGHT
@@ -110,7 +110,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
                     setLift(10.3);
                 })
                 .turn(Math.toRadians(90))
-                .forward(11, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(12, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//30
                 .turn(Math.toRadians(-90))
                 .forward(23, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -120,7 +120,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
                 .build();
         // PICK CONE UP
         TrajectorySequence lookAtMediumFromStack1stCone = drive.trajectorySequenceBuilder(positionOverStack1stCone.end())
-                .back(39.5, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(38.5, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//30
                 .turn(Math.toRadians(-90))
                 .addDisplacementMarker(() -> {
@@ -129,19 +129,19 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
                 .build();
         // RAISE LIFT TO MEDIUM
         TrajectorySequence positionOverMedium1stCone = drive.trajectorySequenceBuilder(lookAtMediumFromStack1stCone.end())
-                .forward(5.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(6, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//10
                 .build();
         // DROP CONE
         TrajectorySequence retreatFromMedium1stCone = drive.trajectorySequenceBuilder(positionOverMedium1stCone.end())
-                .back(5.5, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(6, SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//10
                 .build();
         // LOWER LIFT TO 4 STACK HEIGHT
         // LOWER LIFT TO HEIGHT ZERO
         TrajectorySequence driveToGreenZone = drive.trajectorySequenceBuilder(retreatFromMedium1stCone.end())
                 .turn(Math.toRadians(90))
-                .forward(-12, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(11, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//30
                 .turn(Math.toRadians(90))
                 .build();
@@ -165,7 +165,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
 
         clawControl("clamp");
         sleep(200);
-        setLift(6);
+        setLift(7);
         clawControl("clamp");
         drive.followTrajectorySequence(driveToScan);
 

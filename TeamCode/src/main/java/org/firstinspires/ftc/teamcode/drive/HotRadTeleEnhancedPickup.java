@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.drive;
 import static java.lang.Math.signum;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-
+@Disabled
 @TeleOp (name = "HotRadTeleEnhancedPickup", group = "Iterative Opmode")
 public class HotRadTeleEnhancedPickup extends LinearOpMode {
     @Override

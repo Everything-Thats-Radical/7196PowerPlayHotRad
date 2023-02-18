@@ -144,7 +144,7 @@ public class A4_Left_2Cn_Prk extends LinearOpMode {
         // LOWER LIFT TO HEIGHT ZERO
         TrajectorySequence driveToGreenZone = drive.trajectorySequenceBuilder(retreatFromMedium1stCone.end())
                 .turn(Math.toRadians(-90))
-                .forward(12, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(10, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .turn(Math.toRadians(-90))
                 .build();
@@ -156,7 +156,7 @@ public class A4_Left_2Cn_Prk extends LinearOpMode {
                 .build();
         TrajectorySequence driveToBlueZone = drive.trajectorySequenceBuilder(retreatFromMedium1stCone.end())
                 .turn(Math.toRadians(-90))
-                .back(12, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(11, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .turn(Math.toRadians(-90))
                 .build();
@@ -168,7 +168,7 @@ public class A4_Left_2Cn_Prk extends LinearOpMode {
 
         clawControl("clamp");
         sleep(200);
-        setLift(6);
+        setLift(7);
         clawControl("clamp");
         drive.followTrajectorySequence(driveToScan);
 
