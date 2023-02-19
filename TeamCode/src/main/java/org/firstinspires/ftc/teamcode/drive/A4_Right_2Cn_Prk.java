@@ -120,7 +120,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
                 .build();
         // PICK CONE UP
         TrajectorySequence lookAtMediumFromStack1stCone = drive.trajectorySequenceBuilder(positionOverStack1stCone.end())
-                .back(38.5, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .back(39.5, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//30
                 .turn(Math.toRadians(-90))
                 .addDisplacementMarker(() -> {
@@ -208,7 +208,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
         setLift(5);
         clawControl("clamp"); // PICK CONE UP
         sleep(300);
-        setLift(12);
+        setLift(10);
 
         drive.followTrajectorySequence(lookAtMediumFromStack1stCone); // LIFT IS SET TO 20 IN DURING THIS TO SAVE TIME
         setLift(25.5); // RAISE LIFT TO MEDIUM
