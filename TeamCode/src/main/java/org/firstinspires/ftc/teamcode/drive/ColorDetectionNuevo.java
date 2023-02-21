@@ -58,12 +58,6 @@ public class ColorDetectionNuevo {
     int totalReds = 0;
     int totalBlues = 0;
     int totalGreens = 0;
-    ArrayList<Integer> redXVaules = new ArrayList<Integer>();
-    ArrayList<Integer> redYVaules = new ArrayList<Integer>();
-    ArrayList<Integer> greenXVaules = new ArrayList<Integer>();
-    ArrayList<Integer> greenYVaules = new ArrayList<Integer>();
-    ArrayList<Integer> blueXVaules = new ArrayList<Integer>();
-    ArrayList<Integer> blueYVaules = new ArrayList<Integer>();
 
     int graysConstant = 35; //We want to ignore all gray colors (the backround feild). This variable represents how close we decide the color vaules have to be to be considered gray.
     int scanEvery = 20; //We dont need to look at every single pixel. This is how many pixels to
