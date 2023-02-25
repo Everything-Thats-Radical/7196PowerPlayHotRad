@@ -268,7 +268,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                         break;
                     case 5:
                         strikeHeight = liftInchesToTicks(5.4);
-                        poiseHeight = liftInchesToTicks(10.3);
+                        poiseHeight = liftInchesToTicks(10);
                         break;
 
                 }
@@ -314,7 +314,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 coneStackHeight=0;
             }
             if(gamepad2.dpad_right){
-                desiredLiftPosition = liftInchesToTicks(16);
+                desiredLiftPosition = liftInchesToTicks(15.7);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -323,7 +323,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 coneStackHeight=0;
             }
             if(gamepad2.dpad_left){
-                desiredLiftPosition = liftInchesToTicks(25.5);
+                desiredLiftPosition = liftInchesToTicks(24.8);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
@@ -332,7 +332,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 coneStackHeight=0;
             }
             if(gamepad2.dpad_up){
-                desiredLiftPosition = liftInchesToTicks(35);
+                desiredLiftPosition = liftInchesToTicks(33.7);
                 autoPoiseLift = false;
                 autoStrikeLift = false;
                 autoRePoiseLift = false;
