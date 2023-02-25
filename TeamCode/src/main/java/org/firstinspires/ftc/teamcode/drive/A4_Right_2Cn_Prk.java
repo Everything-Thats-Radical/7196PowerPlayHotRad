@@ -277,7 +277,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
     }
 
     public void setLift(double inches) {
-        double ticks_per_inch = 180;
+        double ticks_per_inch = 134;
         double desiredLiftPosition = inches * ticks_per_inch;
         double currentLiftPosition = STRAIGHTUPPPP.getCurrentPosition();
         double ticksNeeded = desiredLiftPosition - currentLiftPosition;

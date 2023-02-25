@@ -345,7 +345,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
                 liftTicksNeeded = desiredLiftPosition - currentLiftPosition;
                 if ((Math.abs(liftTicksNeeded)/200) > .1){ // .1 is the minimum power deliverable by the lift motor to still move the lift.
                     // essentially, if we know we can't move the lift, we don't.
-                    STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/200) * signum(liftTicksNeeded));
+                    STRAIGHTUPPPP.setPower((Math.abs(liftTicksNeeded)/150) * signum(liftTicksNeeded));
                 }else{
                     STRAIGHTUPPPP.setPower(0);
                 }
@@ -460,7 +460,7 @@ public class CookingWithGasThreatLevelMidnight extends LinearOpMode {
     }
 
     public static double liftInchesToTicks(double inches){
-        int ticksPerInch = 180;
+        int ticksPerInch = 134;
         return inches*ticksPerInch;
     }
 }

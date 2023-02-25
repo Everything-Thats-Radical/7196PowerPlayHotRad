@@ -238,6 +238,7 @@ public class GoatedWithTheSauce extends LinearOpMode {
                 autoScoreOpenClip = false;
                 STRAIGHTUPPPP.setPower((-gamepad2.left_stick_y));
                 coneStackHeight=0;
+
             } else if(gamepad2.dpad_down || gamepad2.dpad_up || gamepad2.dpad_left || gamepad2.dpad_right){
                 robotControlLift = true;
             } else{
@@ -473,7 +474,7 @@ public class GoatedWithTheSauce extends LinearOpMode {
     }
 
     public static double liftInchesToTicks(double inches){
-        int ticksPerInch = 180;
+        int ticksPerInch = 134;
         return inches*ticksPerInch;
     }
 }
