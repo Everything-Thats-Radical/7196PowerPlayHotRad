@@ -19,8 +19,10 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "A4_Right_2Cn_Prk")
-public class A4_Right_2Cn_Prk extends LinearOpMode {
+import java.util.Vector;
+
+@Autonomous(name = "A4_Right_4Cn_Prk")
+public class A4_Right_4Cn_Prk extends LinearOpMode {
 
     private Servo clampyBoi = null;
     private DcMotor STRAIGHTUPPPP = null;
@@ -73,7 +75,104 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
         Pose2d startPose = new Pose2d(64.5, 36, Math.toRadians(180)); // beginning of things after alignment location of this auto
         drive.setPoseEstimate(startPose); // make our localizer and path follower agree with each other
 
+        /*
+                        .addDisplacementMarker(() -> {
+                    setLift(10.3);
+                })
+         */
+        TrajectorySequence driveToSmallPreload = drive.trajectorySequenceBuilder(startPose)
+                /*
+                .addDisplacementMarker(() -> {
+                    setLift(16);
+                })
 
+                 */
+                .addTemporalMarker(.1, () -> {
+                    setLift(16);
+                })
+                .lineToSplineHeading(new Pose2d(50.4, 27.9, Math.toRadians(225)))
+                .build();
+
+        TrajectorySequence returnToStartPose = drive.trajectorySequenceBuilder(driveToSmallPreload.end())
+                .lineToSplineHeading(new Pose2d(64.5, 36, Math.toRadians(180)))
+                .build();
+
+        Trajectory driveToScan = drive.trajectoryBuilder(returnToStartPose.end())
+                .addTemporalMarker(.1, () -> {
+                    setLift(10.5);
+                })
+                .splineTo(new Vector2d(45, 35), Math.toRadians(180),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .splineTo(new Vector2d(42, 35), Math.toRadians(180),
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        TrajectorySequence pushConeAndDriveToStack1stCone = drive.trajectorySequenceBuilder(driveToScan.end())
+                .lineToSplineHeading(new Pose2d(9, 35, Math.toRadians(180)),//45.5
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .lineToSplineHeading(new Pose2d(12, 35, Math.toRadians(180)),//45.5
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .turn(Math.toRadians(-90))
+                .addDisplacementMarker(() -> {
+                    setLift(10);
+                })
+                .splineTo(new Vector2d(12, 55), Math.toRadians(90),//45.5
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .splineTo(new Vector2d(12, 61.5), Math.toRadians(90),//45.5
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+
+        // PICK CONE UP
+        TrajectorySequence driveToMedium1stCone = drive.trajectorySequenceBuilder(pushConeAndDriveToStack1stCone.end())
+                .addTemporalMarker(.3, () -> {
+                    setLift(25);
+                })
+                .lineToSplineHeading(new Pose2d(12, 12, Math.toRadians(90)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .lineToSplineHeading(new Pose2d(20.5, 18, Math.toRadians(45)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        TrajectorySequence driveToStack2ndCone = drive.trajectorySequenceBuilder(driveToMedium1stCone.end())
+                .addTemporalMarker(.5, () -> {
+                    setLift(10.5);
+                })
+                .back(6, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .turn(Math.toRadians(45))
+                .splineTo(new Vector2d(12, 55), Math.toRadians(90),//45.5
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .splineTo(new Vector2d(12, 61.5), Math.toRadians(90),//45.5
+                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        TrajectorySequence driveToSmall3rdCone = drive.trajectorySequenceBuilder(driveToMedium1stCone.end())
+                .addTemporalMarker(1.5, () -> {
+                    setLift(15);
+                })
+                .lineToSplineHeading(new Pose2d(12, 36, Math.toRadians(90)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .lineToSplineHeading(new Pose2d(20, 20, Math.toRadians(45)),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+
+                .build();
+
+
+
+        /*
         TrajectorySequence driveToScan = drive.trajectorySequenceBuilder(startPose)
                 .forward(19,
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -157,7 +256,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))//30
                 .turn(Math.toRadians(90))
                 .build();
-
+*/
 
         waitForStart();
 
@@ -165,8 +264,54 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
 
         clawControl("clamp");
         sleep(400);
-        setLift(8);
+
+        drive.followTrajectorySequence(driveToSmallPreload);
+
+        setLift(14);
+        clawControl("release"); // DROP CONE
+        sleep(300);
+        setLift(16);
         clawControl("clamp");
+
+        drive.followTrajectorySequence(returnToStartPose);
+
+        drive.followTrajectory(driveToScan);
+
+        drive.followTrajectorySequence(pushConeAndDriveToStack1stCone);
+
+        clawControl("release"); // PICK CONE UP
+        sleep(300);
+        setLift(5);
+        clawControl("clamp");
+        sleep(300);
+        setLift(10);
+
+        drive.followTrajectorySequence(driveToMedium1stCone);
+
+        setLift(23);
+        clawControl("release"); // DROP CONE
+        sleep(300);
+        setLift(25);
+        clawControl("clamp");
+
+        drive.followTrajectorySequence(driveToStack2ndCone);
+
+        clawControl("release"); // PICK CONE UP
+        sleep(300);
+        setLift(5);
+        clawControl("clamp");
+        sleep(300);
+        setLift(8.5);
+
+        drive.followTrajectorySequence(driveToSmall3rdCone);
+
+        setLift(23);
+        clawControl("release"); // DROP CONE
+        sleep(300);
+        setLift(25);
+        clawControl("clamp");
+
+        /*
         drive.followTrajectorySequence(driveToScan);
 
         String coneColor = "green";
@@ -243,7 +388,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
             telemetry.addData("Color: ", noColor);
             telemetry.update();
         }
-
+*/
         /*
         clawControl("clamp");
         moveLift("up", 27, .5);
@@ -274,6 +419,7 @@ public class A4_Right_2Cn_Prk extends LinearOpMode {
         }
 
          */
+
     }
 
     public void setLift(double inches) {
