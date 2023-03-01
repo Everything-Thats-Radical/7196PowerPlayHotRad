@@ -114,21 +114,17 @@ public class A4_Right_4Cn_Prk extends LinearOpMode {
                 .build();
 
         TrajectorySequence pushConeAndDriveToStack1stCone = drive.trajectorySequenceBuilder(driveToScan.end())
-                .lineToSplineHeading(new Pose2d(9, 35, Math.toRadians(180)),//45.5
+                .splineToConstantHeading(new Vector2d(6, 36), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .lineToSplineHeading(new Pose2d(12, 35, Math.toRadians(180)),//45.5
+                .splineToConstantHeading(new Vector2d(14, 36), Math.toRadians(180),//45.5
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(Math.toRadians(-90))
                 .addDisplacementMarker(() -> {
                     setLift(10);
                 })
-                .splineTo(new Vector2d(12, 55), Math.toRadians(90),//45.5
+                .lineToSplineHeading(new Pose2d(12, 62, Math.toRadians(90)),//45.5
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .splineTo(new Vector2d(12, 63), Math.toRadians(90),//45.5
-                        SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
@@ -139,7 +135,7 @@ public class A4_Right_4Cn_Prk extends LinearOpMode {
                     setLift(25);
                 })
                 .lineToSplineHeading(new Pose2d(12, 33, Math.toRadians(90)),
-                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .lineToSplineHeading(new Pose2d(21.5, 29, Math.toRadians(315)),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -153,10 +149,10 @@ public class A4_Right_4Cn_Prk extends LinearOpMode {
                 .back(4, SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .turn(Math.toRadians(135))
-                .splineTo(new Vector2d(13, 55), Math.toRadians(90),//45.5
+                .splineToConstantHeading(new Vector2d(13, 55), Math.toRadians(90),//45.5
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .splineTo(new Vector2d(13, 63), Math.toRadians(90),//45.5
+                .splineToConstantHeading(new Vector2d(13, 63), Math.toRadians(90),//45.5
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -169,7 +165,7 @@ public class A4_Right_4Cn_Prk extends LinearOpMode {
                 .lineToSplineHeading(new Pose2d(12, 55, Math.toRadians(90)),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .lineToSplineHeading(new Pose2d(21, 51, Math.toRadians(315)),
+                .lineToSplineHeading(new Pose2d(22, 50, Math.toRadians(315)),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
