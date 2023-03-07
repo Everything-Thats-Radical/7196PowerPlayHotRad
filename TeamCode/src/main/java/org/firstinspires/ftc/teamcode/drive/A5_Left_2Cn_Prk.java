@@ -115,7 +115,7 @@ public class A5_Left_2Cn_Prk extends LinearOpMode {
                     setLift(25);
                 })
                 .turn(Math.toRadians(-135))
-                .lineToSplineHeading(new Pose2d(20.5, -27, Math.toRadians(45)),//45.5
+                .lineToSplineHeading(new Pose2d(21.5, -24, Math.toRadians(45)),//45.5
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -127,10 +127,10 @@ public class A5_Left_2Cn_Prk extends LinearOpMode {
                 .back(12, SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .turn(Math.toRadians(-135))
-                .splineToConstantHeading(new Vector2d(14, -55), Math.toRadians(270),//45.5
+                .splineToConstantHeading(new Vector2d(15.5, -55), Math.toRadians(270),//45.5
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .splineToConstantHeading(new Vector2d(14, -66), Math.toRadians(270),//45.5
+                .splineToConstantHeading(new Vector2d(15.5, -66), Math.toRadians(270),//45.5
                         SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -138,7 +138,7 @@ public class A5_Left_2Cn_Prk extends LinearOpMode {
         // PICK CONE UP
 
         TrajectorySequence driveToMedium1stCone = drive.trajectorySequenceBuilder(driveToStack1stCone.end())
-                .lineToSplineHeading(new Pose2d(14, -42, Math.toRadians(270)),
+                .lineToSplineHeading(new Pose2d(15, -42, Math.toRadians(270)),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .addTemporalMarker(.5, () -> {
@@ -154,19 +154,20 @@ public class A5_Left_2Cn_Prk extends LinearOpMode {
                 .addTemporalMarker(.5, () -> {
                     setLift(3);
                 })
+                /*
                 .lineToSplineHeading(new Pose2d(14, -36, Math.toRadians(270)),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                /*
-                .back(4, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(Math.toRadians(135))
 
                  */
+                .back(5, SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .turn(Math.toRadians(45))
                 .build();
 
         TrajectorySequence driveToRed = drive.trajectorySequenceBuilder(alignToParkingZones.end())
                 .turn(Math.toRadians(-90))
+                .back(4)
                 .strafeLeft(24)
                 .back(5)
                 /*
@@ -185,14 +186,13 @@ public class A5_Left_2Cn_Prk extends LinearOpMode {
                 .lineToSplineHeading(new Pose2d(14, 36, Math.toRadians(180)),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-
                  */
                 .build();
 
 
 
         TrajectorySequence driveToBlue = drive.trajectorySequenceBuilder(alignToParkingZones.end())
-                .back(24)
+                .forward(15)
                 .turn(Math.toRadians(90))
                 .build();
 
